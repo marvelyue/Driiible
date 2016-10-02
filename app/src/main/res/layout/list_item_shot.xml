@@ -25,6 +25,7 @@
 
             <!--use TextView with drawableLeft instead of using linearlayout with two children-->
 
+
             <TextView
                 android:id="@+id/shot_view_count"
                 android:layout_width="wrap_content"
