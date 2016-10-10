@@ -1,5 +1,6 @@
 package com.example.yuewu.driiible.view;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -9,9 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.yuewu.driiible.R;
+import com.example.yuewu.driiible.dribbble.Dribbble;
 import com.example.yuewu.driiible.view.bucket_list.BucketListFragment;
 import com.example.yuewu.driiible.view.shot_list.ShotListFragment;
 
@@ -77,6 +81,20 @@ public class MainActivity extends AppCompatActivity {
         );
 
         drawerLayout.setDrawerListener(drawerToggle);
+
+        View headerView = navigationView.getHeaderView(0);
+
+        ((TextView) headerView.findViewById(R.id.nav_header_user_name)).setText(Dribbble.getCurrentUser().name);
+
+        headerView.findViewById(R.id.nav_header_logout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dribbble.logout(MainActivity.this);
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
