@@ -2,6 +2,7 @@ package com.example.yuewu.driiible.view;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -11,13 +12,16 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.yuewu.driiible.R;
 import com.example.yuewu.driiible.dribbble.Dribbble;
 import com.example.yuewu.driiible.view.bucket_list.BucketListFragment;
 import com.example.yuewu.driiible.view.shot_list.ShotListFragment;
+import com.facebook.drawee.view.SimpleDraweeView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -142,7 +146,28 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        setupNavHeader();
     }
 
+    private void setupNavHeader() {
+        View headerView = navigationView.getHeaderView(0);
+
+        ((TextView) headerView.findViewById(R.id.nav_header_user_name)).setText(Dribbble.getCurrentUser().name);
+
+        ((SimpleDraweeView) headerView.findViewById(R.id.nav_header_user_picture))
+                .setImageURI(Uri.parse(Dribbble.getCurrentUser().avatar_url));
+
+        headerView.findViewById(R.id.nav_header_logout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dribbble.logout(MainActivity.this);
+
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
 
 }

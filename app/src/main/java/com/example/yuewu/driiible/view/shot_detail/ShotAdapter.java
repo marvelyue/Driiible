@@ -1,13 +1,18 @@
 package com.example.yuewu.driiible.view.shot_detail;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.example.yuewu.driiible.R;
 import com.example.yuewu.driiible.model.Shot;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
 
 /**
  * Created by YueWu on 10/10/16.
@@ -38,18 +43,31 @@ public class ShotAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int viewType = getItemViewType(position);
-        if (viewType == TYPE_SHOT_IMAGE) {
+        switch (viewType) {
+            case TYPE_SHOT_IMAGE:
+                // play git automatically
+                DraweeController controller = Fresco.newDraweeControllerBuilder()
+                                                    .setUri(Uri.parse(shot.getImageUrl()))
+                                                    .setAutoPlayAnimations(true)
+                                                    .build();
+                ((ImageViewHolder) holder).image.setController(controller);
+                break;
+            case TYPE_SHOT_INFO:
+                InfoViewHolder shotDetailViewHolder = (InfoViewHolder) holder;
+                shotDetailViewHolder.title.setText(shot.title);
+                shotDetailViewHolder.authorName.setText(shot.user.name);
+                shotDetailViewHolder.description.setText(shot.description);
+                shotDetailViewHolder.authorPicture.setImageURI(Uri.parse(shot.user.avatar_url));
 
-        } else { // TYPE_INFO
-            InfoViewHolder shotDetailViewHolder = (InfoViewHolder) holder;
-            shotDetailViewHolder.title.setText(shot.title);
-            shotDetailViewHolder.authorName.setText(shot.user.name);
-            shotDetailViewHolder.description.setText(shot.description);
+                shotDetailViewHolder.likeCount.setText(String.valueOf(shot.likes_count));
+                shotDetailViewHolder.bucketCount.setText(String.valueOf(shot.buckets_count));
+                shotDetailViewHolder.viewCount.setText(String.valueOf(shot.views_count));
 
-            shotDetailViewHolder.likeCount.setText(String.valueOf(shot.likes_count));
-            shotDetailViewHolder.bucketCount.setText(String.valueOf(shot.buckets_count));
-            shotDetailViewHolder.viewCount.setText(String.valueOf(shot.views_count));
-
+                Glide.with(holder.itemView.getContext())
+                        .load(shot.user.avatar_url)
+                        .placeholder(R.drawable.user_picture_placeholder)
+                        .into(shotDetailViewHolder.authorPicture);
+                break;
         }
     }
 
