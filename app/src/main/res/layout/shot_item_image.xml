@@ -6,4 +6,5 @@
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     fresco:viewAspectRatio="1.33"
     fresco:placeholderImage="@drawable/shot_placeholder"
-    fresco:placeholderImageScaleType="fitCenter"/>
+    fresco:placeholderImageScaleType="fitCenter"
+    fresco:actualImageScaleType="fitCenter"/>

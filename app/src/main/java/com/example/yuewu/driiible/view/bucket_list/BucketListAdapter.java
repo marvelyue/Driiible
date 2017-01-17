@@ -1,50 +1,81 @@
 package com.example.yuewu.driiible.view.bucket_list;
 
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
+import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.yuewu.driiible.R;
 import com.example.yuewu.driiible.model.Bucket;
+import com.example.yuewu.driiible.view.base.InfiniteAdapter;
+import com.example.yuewu.driiible.view.base.BaseViewHolder;
+import com.example.yuewu.driiible.view.shot_list.ShotListFragment;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 /**
  * Created by YueWu on 10/2/16.
  */
-public class BucketListAdapter extends RecyclerView.Adapter{
-    private List<Bucket> data;
+public class BucketListAdapter extends InfiniteAdapter<Bucket> {
 
-    public BucketListAdapter(@Nullable List<Bucket> data) {this.data = data;}
+    private boolean isChoosingMode;
 
+    public BucketListAdapter(@NonNull Context context,
+                             @NonNull List<Bucket> data,
+                             @NonNull LoadMoreListener loadMoreListener,
+                             boolean isChoosingMode) {
+        super(context, data, loadMoreListener);
+        this.isChoosingMode = isChoosingMode;
+    }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
+    protected BaseViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(getContext())
                 .inflate(R.layout.list_item_bucket, parent, false);
         return new BucketViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Bucket bucket = data.get(position);
-        // 0 -> 0 shot
-        // 1 -> 1 shot
-        // 2 -> 2 shots
-        String bucketShotCountString = MessageFormat.format(
-                holder.itemView.getContext().getResources().getString(R.string.shot_count),
-                bucket.shots_count);
+    protected void onBindItemViewHolder(BaseViewHolder holder, final int position) {
+        final Bucket bucket = getData().get(position);
+        final BucketViewHolder bucketViewHolder = (BucketViewHolder) holder;
 
-        BucketViewHolder bucketViewHolder = (BucketViewHolder) holder;
         bucketViewHolder.bucketName.setText(bucket.name);
-        bucketViewHolder.bucketShotCount.setText(bucketShotCountString);
+        bucketViewHolder.bucketShotCount.setText(formatShotCount(bucket.shots_count));
+
+        if (isChoosingMode) {
+            bucketViewHolder.bucketChosen.setVisibility(View.VISIBLE);
+            bucketViewHolder.bucketChosen.setImageDrawable(
+                    bucket.isChoosing
+                            ? ContextCompat.getDrawable(getContext(), R.drawable.ic_check_box_black_24dp)
+                            : ContextCompat.getDrawable(getContext(), R.drawable.ic_check_box_outline_blank_black_24dp));
+            bucketViewHolder.bucketLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    bucket.isChoosing = !bucket.isChoosing;
+                    notifyItemChanged(position);
+                }
+            });
+        } else {
+            bucketViewHolder.bucketChosen.setVisibility(View.GONE);
+            bucketViewHolder.bucketLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getContext(), BucketShotListActivity.class);
+                    intent.putExtra(ShotListFragment.KEY_BUCKET_ID, bucket.id);
+                    intent.putExtra(BucketShotListActivity.KEY_BUCKET_NAME, bucket.name);
+                    getContext().startActivity(intent);
+                }
+            });
+        }
     }
 
-    @Override
-    public int getItemCount() {
-        return data.size();
+    private String formatShotCount(int shotCount) {
+        return shotCount == 0
+                ? getContext().getString(R.string.shot_count_single, shotCount)
+                : getContext().getString(R.string.shot_count_plural, shotCount);
     }
 }
